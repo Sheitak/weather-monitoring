@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:weather_monitoring/widgets/custom_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
+import 'package:location/location.dart';
 
 void main() {
   SystemChrome.setPreferredOrientations([
@@ -40,10 +41,37 @@ class _MyHomePageState extends State<MyHomePage> {
   List<String> cities = [];
   String? choiceCity;
 
+  Location location = new Location();
+  LocationData? locationData;
+  Stream<LocationData>? stream;
+
   @override
   void initState() {
     super.initState();
     getShared();
+    // location = new Location();
+    // getFirstLocation();
+    listenToStream();
+  }
+
+  // Once
+  getFirstLocation() async {
+    try {
+      locationData = await location.getLocation();
+      print(
+          "Nouvelle position: ${locationData!.latitude} / ${locationData!.longitude}");
+    } catch (error) {
+      print("Nous avons une erreur : $error");
+    }
+  }
+
+  // Each Change
+  listenToStream() {
+    stream = location.onLocationChanged;
+    stream!.listen((newPosition) {
+      print("New => ${newPosition.latitude} ------ ${newPosition.longitude}");
+
+    });
   }
 
   @override
